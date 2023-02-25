@@ -2,6 +2,8 @@ package com.lukaslechner.coroutineusecasesonandroid.usecases.coroutines.usecase1
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.lukaslechner.coroutineusecasesonandroid.mock.mockAndroidVersions
+import com.lukaslechner.coroutineusecasesonandroid.utils.MainCoroutineScopeRule
+import com.lukaslechner.coroutineusecasesonandroid.utils.ReplaceMainDispatcherRule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
@@ -16,18 +18,21 @@ class PerformSingleNetworkRequestViewModelTest {
     @get:Rule
     val testInstantTaskExecutorRule: TestRule = InstantTaskExecutorRule()
 
-    private lateinit var dispatcher: TestCoroutineDispatcher
+    @get:Ignore("Deprecated method")
+    @get:Rule
+    val mainCoroutineScopeRule = MainCoroutineScopeRule()
+
+    @get:Rule
+    val replaceMainDispatcherRule = ReplaceMainDispatcherRule()
 
     @Before
     fun setUp() {
-        dispatcher = TestCoroutineDispatcher()
-        Dispatchers.setMain(dispatcher)
+
     }
 
     @After
     fun tearDown() {
-        Dispatchers.resetMain()
-        dispatcher.cleanupTestCoroutines()
+
     }
 
     private val receivedUiStates = mutableListOf<UiState>()
