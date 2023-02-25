@@ -1,4 +1,6 @@
 package com.lukaslechner.coroutineusecasesonandroid.utils
 
-class EndpointShouldNotBeCalledException : Throwable() {
+class EndpointShouldNotBeCalledException(
+    private val errorMessage: String? = null
+) : Throwable(errorMessage) {
 }
