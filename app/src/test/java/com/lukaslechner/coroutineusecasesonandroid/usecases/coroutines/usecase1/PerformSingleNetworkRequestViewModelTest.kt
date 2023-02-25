@@ -54,6 +54,27 @@ class PerformSingleNetworkRequestViewModelTest {
 
     }
 
+    @Test
+    fun `performSingleNetworkRequest networkRequestFails assertEquals`() {
+
+        // Arrange
+        val fakeApi = FakeErrorApi()
+        val viewModel = PerformSingleNetworkRequestViewModel(fakeApi)
+        observeUiState(viewModel)
+
+        // Act
+        viewModel.performSingleNetworkRequest()
+
+        // Assert
+        Assert.assertEquals(
+            listOf(
+                UiState.Loading,
+                UiState.Error("Network Request failed!")
+            ),
+            receivedUiStates
+        )
+    }
+
     private fun observeUiState(viewModel: PerformSingleNetworkRequestViewModel) {
         viewModel.uiState().observeForever { uiState ->
 
