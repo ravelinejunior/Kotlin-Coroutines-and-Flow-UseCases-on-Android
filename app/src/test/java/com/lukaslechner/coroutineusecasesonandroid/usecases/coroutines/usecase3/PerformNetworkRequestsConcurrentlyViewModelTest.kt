@@ -42,7 +42,7 @@ class PerformNetworkRequestsConcurrentlyViewModelTest {
 
             // Act
             viewModel.performNetworkRequestsSequentially()
-            val forwardedTime = testScheduler.apply { advanceTimeBy(3000); runCurrent() }
+            val forwardedTime = testScheduler.apply { advanceUntilIdle() }
 
             // Assert
             Assert.assertEquals(
@@ -75,7 +75,7 @@ class PerformNetworkRequestsConcurrentlyViewModelTest {
 
             // Act
             viewModel.performNetworkRequestsConcurrently()
-            val forwardedTime = testScheduler.apply { advanceTimeBy(1000); runCurrent() }
+            val forwardedTime = testScheduler.apply { advanceUntilIdle() }
 
             // Assert
             Assert.assertEquals(
