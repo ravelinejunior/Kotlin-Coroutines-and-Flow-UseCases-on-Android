@@ -27,6 +27,6 @@ fun main() {
 
     runBlocking {
         val item = flow.toList()
-        println("Received $item")
+        println("Received list $item")
     }
 }

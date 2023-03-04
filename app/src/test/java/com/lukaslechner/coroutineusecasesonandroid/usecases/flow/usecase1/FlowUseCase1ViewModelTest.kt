@@ -20,6 +20,7 @@ class FlowUseCase1ViewModelTest {
 
     private val receivedUiStates = mutableListOf<UiState>()
 
+    @ExperimentalCoroutinesApi
     @Test
     fun `should return success UI States with values of fakeDataSource`() = runTest {
 
@@ -39,10 +40,11 @@ class FlowUseCase1ViewModelTest {
         assertEquals(3, receivedUiStates.size)
     }
 
-    private fun observeViewModel(viewModel: FlowUseCase1ViewModel) {
-        viewModel.currentStockPriceAsLiveData.observeForever { uiState ->
-            if (uiState != null) {
-                receivedUiStates.add(uiState)
+    private suspend fun observeViewModel(viewModel: FlowUseCase1ViewModel) {
+        viewModel.currentStockPriceAsLiveData.collect { uiState ->
+
+            uiState.collect {
+                receivedUiStates.add(it)
             }
         }
     }
