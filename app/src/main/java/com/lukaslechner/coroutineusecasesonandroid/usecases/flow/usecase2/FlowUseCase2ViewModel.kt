@@ -1,13 +1,19 @@
 package com.lukaslechner.coroutineusecasesonandroid.usecases.flow.usecase2
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
 import com.lukaslechner.coroutineusecasesonandroid.base.BaseViewModel
+import com.lukaslechner.coroutineusecasesonandroid.usecases.flow.mock.Stock
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.*
+import timber.log.Timber
 
 class FlowUseCase2ViewModel(
     stockPriceDataSource: StockPriceDataSource,
     defaultDispatcher: CoroutineDispatcher
 ) : BaseViewModel<UiState>() {
+
+    private val TAG = FlowUseCase2ViewModel::class.java.simpleName
 
     /*
 
@@ -22,6 +28,101 @@ class FlowUseCase2ViewModel(
         8) Perform all flow processing on a background thread
 
      */
+    val currentStockPriceAsLiveData: LiveData<UiState> = stockPriceDataSource
+        .latestStockList
+        //7-Situation
+        .withIndex()
+        .onEach { indexedValue ->
+            Timber.tag(TAG).d("Processing emission ${indexedValue.index + 1}")
+        }
+        .map { indexedValue: IndexedValue<List<Stock>> ->
+            indexedValue.value
+        }
+        //6-Situation
+        .take(10)
+        //1-situation
+        .filter { stocks ->
+            val googlePrices = stocks.find { stock ->
+                stock.name.equals("Alphabet (Google)", ignoreCase = true)
+            }?.currentPrice ?: return@filter false
 
-    val currentStockPriceAsLiveData: LiveData<UiState> = TODO()
+            googlePrices > 2300
+        }
+        //2-Situation ...
+        .map { stocks ->
+            stocks.filter { stock ->
+                stock.country == "United States"
+            }
+            stocks.mapIndexed { index, stock ->
+                stock.copy(rank = index + 1)
+            }
+            stocks.filterNot { it.name == "Apple" || it.name == "Microsoft" }
+            stocks.filter { stock ->
+                stock.rank <= 10
+            }
+        }
+        .map { values ->
+            UiState.Success(values) as UiState
+        }
+        .onStart {
+            emit(UiState.Loading)
+        }
+        .asLiveData(defaultDispatcher)
+
+
+    /*val currentStockPriceAsLiveData: LiveData<UiState> = stockPriceDataSource
+        .latestStockList
+        //7-Situation
+        .withIndex()
+        .onEach { indexedValue ->
+            Timber.tag(TAG).d("Processing emission ${indexedValue.index + 1}")
+        }
+        .map { indexedValue: IndexedValue<List<Stock>> ->
+            indexedValue.value
+        }
+        //6-Situation
+        .take(10)
+        //1-situation
+        .filter { stocks ->
+            val googlePrices = stocks.find { stock ->
+                stock.name.equals("Alphabet (Google)", ignoreCase = true)
+            }?.currentPrice ?: return@filter false
+
+            googlePrices > 2300
+        }
+        //2-Situation
+        .map { stocks ->
+            stocks.filter { stock ->
+                stock.country == "United States"
+            }
+        }
+        //3-Situation
+        .map { stocks ->
+            stocks.mapIndexed { index, stock ->
+                stock.copy(rank = index + 1)
+            }
+        }
+        //4-Situation
+        .map { stocks ->
+            stocks.filterNot { it.name == "Apple" || it.name == "Microsoft" }
+        }
+        //or
+        //5-Situation
+        *//*.map { stocks ->
+            stocks.filter { it.name != "Apple" && it.name != "Microsoft" }
+        }*//*
+        .map { stocks ->
+            stocks.filter { stock ->
+                stock.rank <= 10
+            }
+        }
+        .map { values ->
+            UiState.Success(values) as UiState
+        }
+        .onStart {
+            emit(UiState.Loading)
+        }
+        .asLiveData(defaultDispatcher)*/
+
+
 }
