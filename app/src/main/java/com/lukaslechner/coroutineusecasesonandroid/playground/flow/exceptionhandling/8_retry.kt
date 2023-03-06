@@ -8,7 +8,11 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.launch
 
+
+private var attempts = 0L
+
 suspend fun main(): Unit = coroutineScope {
+
 
     launch {
         stocksFlow()
@@ -25,17 +29,20 @@ private fun stocksFlow(): Flow<String> = flow {
 
     repeat(5) { index ->
 
-        delay(1000) // Network call
+        delay(500) // Network call
 
         if (index < 4) {
             emit("New Stock data")
-        } else {
+        } else if (attempts < 5) {
             throw NetworkException("Network Request Failed!")
+        } else {
+            throw Exception("End of loop!")
         }
     }
 }.retryWhen { cause, attempt ->
-    println("Enter retry() with $cause")
+    println("Enter retry() with $cause and attempt is ${attempt + 1}")
     delay(1000 * (attempt + 1))
+    attempts = attempt + 1
     cause is NetworkException
 }
 
