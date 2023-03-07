@@ -3,6 +3,7 @@ package com.lukaslechner.coroutineusecasesonandroid.usecases.flow.usecase3
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import com.lukaslechner.coroutineusecasesonandroid.base.BaseViewModel
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
@@ -11,6 +12,8 @@ import timber.log.Timber
 class FlowUseCase3ViewModel(
     stockPriceDataSource: StockPriceDataSource
 ) : BaseViewModel<UiState>() {
+
+    private val TAG = FlowUseCase3ViewModel::class.java.name
 
     /*
         Exercise: Flow Exception Handling
@@ -35,7 +38,11 @@ class FlowUseCase3ViewModel(
             emit(UiState.Loading)
         }
         .onCompletion {
-            Timber.tag("Flow").d("Flow has completed.")
+            Timber.tag(TAG).d("Flow has completed.")
+        }
+        .catch { throwable ->
+            Timber.tag(TAG).d("Something went wrong: ${throwable.message}")
+            emit(UiState.Error(throwable.message.toString()))
         }
         .asLiveData()
 }
